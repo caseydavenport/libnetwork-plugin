@@ -1,19 +1,33 @@
 [![Build Status](https://semaphoreci.com/api/v1/projects/d51a0276-7939-409e-80ac-aa5df9421fef/510521/badge.svg)](https://semaphoreci.com/calico/libnetwork-plugin)
 
-# Libnetwork plugin for Calico
+# Docker libnetwork plugin for Calico
 
 This plugin for Docker networking ([libnetwork](https://github.com/docker/libnetwork)) is intended for use with [Project Calico](http://www.projectcalico.org).
-The plugin is integrated with the `calico/node` image which is created from the [calicoctl](https://github.com/projectcalico/calicoctl) repository, but it can also be run in it's own Docker container or as a standalone binary.
 
-Guides on how to get started with the plugin and further documentation is available from http://docs.projectcalico.org
+Guides on how to get started and use the plugin are available within this repository.
+
+## Repository status
+
+The libnetwork plugin is currently a community driven project with a separate development and release schedule from the core
+Calico release cycle. Being a community supported plugin has the following implications:
+
+- It is not guaranteed that this plugin will receive any particular level of integration testing. We're relying on
+  the open source community to help identify and provide test coverage of this plugin.
+- Breaking changes may occur - we'll do our best to notify of changes coming down the pipeline that may require additional work in this plugin.
+- We're relying on contributions from the community to progress development of this repository and keep it up-to-date.
+- If it emerges that there are significant issues that no-one in the community is willing to resolve, this plugin will likely be deprecated.
+
+We are currently looking for additional maintainers to help with the management of this repository.
 
 ## Supported options for confguration
 
 ### Working with Networks
+
 * When creating a network, the `--subnet` option can be passed to `docker network create`. The subnet must match an existing Calico pool, and any containers created on that network will use an IP address from that Calico Pool.
 * Other than `--driver` and `--ipam-driver`, no other options are supported on the `docker network create` command.
 
 ### Working with Containers
+
 When creating containers, use the `--net` option to connect them to a network previously created with `docker network create`
 
 * The `--ip` option can be passed to `docker run` to assign a specific IP to a container.
@@ -29,9 +43,11 @@ When creating containers, use the `--net` option to connect them to a network pr
 * Before submitting your PR, please make sure tests pass and run `make static-checks`. Both these will be done by the CI system too though.
 
 ## How to Run It During Development
+
 `make run-plugin`
 
 Running the plugin in a container requires a few specific options
+
  `docker run --rm --net=host --privileged -e CALICO_ETCD_AUTHORITY=$(LOCAL_IP_ENV):2379 -v /run/docker/plugins:/run/docker/plugins -v /var/run/docker.sock:/var/run/docker.sock --name calico-node-libnetwork calico/node-libnetwork /calico`
 
 - `--net=host` Host network is used since the network changes need to occur in the host namespace
@@ -52,13 +68,11 @@ On OSX/Windows you can't run Docker natively. To allow the Makefile to write the
 
 Run `make test` like this: `LOCAL_USER_ID=1000 LOCAL_GROUP_ID=100 make test-containerized`
 
-
-
 ## IPv6 Usage
 
 *Note: IPv4 can't be disabled, IPv6 is enabled in addition to IPv4.*
 
-Docker IPv6 support must be enabled e.g. 
+Docker IPv6 support must be enabled e.g.
 ```
 dockerd --cluster-store=etcd://127.0.0.1:2379 --ipv6 --fixed-cidr-v6="2001:db8:1::/64"
 ```
@@ -114,8 +128,8 @@ docker network create --ipv6 -d calico --ipam-driver calico-ipam my_net
 The following is a list of known limitations when using the Calico libnetwork
 driver:
 -  It is not possible to add multiple networks to a single container.  However,
-   once a container endpoint is created, it is possible to manually add 
-   additional Calico profiles to that endpoint (effectively adding the 
+   once a container endpoint is created, it is possible to manually add
+   additional Calico profiles to that endpoint (effectively adding the
    container into another network).
 
 ## Configuring
@@ -145,7 +159,7 @@ Example: `docker run --label org.projectcalico.label.foo=bar --net <calico netwo
 ## Troubleshooting
 
 ### Logging
-Logs are sent to STDOUT. If using Docker these can be viewed with the 
+Logs are sent to STDOUT. If using Docker these can be viewed with the
 `docker logs` command.
 
 ### Monitoring
